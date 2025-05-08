@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Port Scanner Dashboard</title>
+    <script>
+        function startScan() {
+            document.getElementById("results").innerHTML = "Scanning...";
+            const network = document.getElementById("network").value;
+
+            fetch("/scan", {
+                method: "POST",
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `network=${encodeURIComponent(network)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                let output = "<h3>Results:</h3><ul>";
+                data.forEach(result => {
+                    output += `<li><strong>${result.host}</strong>: ${result.open_ports.join(", ") || 'No open ports'}</li>`;
+                });
+                output += "</ul>";
+
+                // Add download button after results
+                output += `<button onclick="downloadExcel()">Download Excel</button>`;
+                document.getElementById("results").innerHTML = output;
+            });
+        }
+
+        function downloadExcel() {
+            window.location.href = "/download";
+        }
+    </script>
+</head>
+<body>
+    <h1>Port Scanner Dashboard</h1>
+    <input type="text" id="network" placeholder="Enter network (e.g. 192.168.1.0/24)">
+    <button onclick="startScan()">Start Scan</button>
+    <div id="results" style="margin-top: 20px;"></div>
+</body>
+</html>
